@@ -51,14 +51,13 @@ def generate_ai_commentary(market_text):
         return f"今日市場數據速遞：{market_text}"
 
 # ==========================================
-# 3. 直接生成獨立的 HTML 檔案
+# 3. 生成獨立的 HTML 文章檔案
 # ==========================================
 def save_to_html(content, raw_data):
     today = datetime.now().strftime("%Y-%m-%d")
     now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     filename = f"posts/finance-{today}.html"
     
-    # 確保 posts 目錄存在
     os.makedirs("posts", exist_ok=True)
     
     html_content = f"""<!DOCTYPE html>
@@ -109,6 +108,72 @@ def save_to_html(content, raw_data):
         f.write(html_content)
     
     print(f"成功生成 HTML 檔案: {filename}")
+    update_index_page(today)
+
+# ==========================================
+# 4. 自動更新主頁 index.html
+# ==========================================
+def update_index_page(today):
+    index_path = "index.html"
+    
+    # 掃描 posts 目錄底下所有 html 檔案
+    posts = []
+    if os.path.exists("posts"):
+        for file in sorted(os.listdir("posts"), reverse=True):
+            if file.endswith(".html"):
+                date_str = file.replace("finance-", "").replace(".html", "")
+                posts.append((date_str, f"posts/{file}"))
+
+    # 組合所有文章列表的 HTML 項目
+    list_items_html = ""
+    for date_str, path in posts:
+        list_items_html += f"""
+                <a href="{path}" class="block p-4 rounded-lg border border-gray-100 hover:border-blue-500 hover:bg-blue-50/50 transition">
+                    <span class="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded">財經速遞</span>
+                    <h3 class="font-medium text-gray-900 mt-1">每日財經速遞 ({date_str})</h3>
+                    <p class="text-sm text-gray-500 mt-1">點擊查看當日的市場即時數據與 AI 短評。</p>
+                </a>"""
+
+    index_content = f"""<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日財經速遞 - AI 自動化市場速遞</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 py-6 shadow-sm">
+        <div class="max-w-3xl mx-auto px-4">
+            <h1 class="text-2xl font-bold text-gray-900">📈 每日財經速遞</h1>
+            <p class="text-sm text-gray-500 mt-1">由 AI 自動監測與生成的市場即時速遞</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 py-8 flex-grow w-full">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">最新文章列表</h2>
+            
+            <div id="post-list" class="space-y-3">
+                {list_items_html}
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 py-6 text-center text-xs text-gray-400">
+        <p>© 2026 每日財經速遞. Powered by GitHub Actions & Vercel.</p>
+    </footer>
+</body>
+</html>
+"""
+
+    with open(index_path, "w", encoding="utf-8") as f:
+        f.write(index_content)
+    
+    print("成功自動更新 index.html 列表！")
 
 if __name__ == "__main__":
     print("開始執行財經數據自動化...")
