@@ -44,7 +44,7 @@ def run_finance_module(worker_url):
 """
     
     try:
-        res = requests.post(worker_url, json={"prompt": prompt, "tone": "professional", "lang": "hk"}, timeout=30)
+        res = requests.post(worker_url, json={"prompt": prompt, "tone": "professional", "lang": "hk"}, timeout=60)
         print(f"財經模組 - 雲端 Worker 回應狀態碼: {res.status_code}")
         print(f"財經模組 - 雲端 Worker 實際內容: {res.text}")
         
@@ -110,18 +110,11 @@ def get_fallback_finance(m):
 # ==========================================
 def run_trends_module(worker_url):
     print(">>> 開始執行潮流熱搜模組...")
-    topics = [
-        {"keyword": "#加密貨幣迷因", "volume": "高熱度"},
-        {"keyword": "#AI自動化", "volume": "急升"},
-        {"keyword": "#港股與美股連動", "volume": "穩定"},
-        {"keyword": "#週末好去處", "volume": "熱搜"}
-    ]
-    topics_str = ", ".join([f"{t['keyword']} ({t['volume']})" for t in topics])
     
-    prompt = f"你是一位對網路迷因極度敏銳的專欄作家。今日網上熱搜關鍵字如下：- {topics_str}。請用貼地、幽默的廣東話撰寫一份迷因解構報告（【熱話解構】與【迷因文化觀點】）。"
+    prompt = "請幫我搜尋今日香港最新熱話關鍵字，並用貼地、幽默的廣東話撰寫一份迷因解構報告（包含【熱話解構】與【迷因文化觀點】）。"
     
     try:
-        res = requests.post(worker_url, json={"prompt": prompt, "tone": "casual", "lang": "hk"}, timeout=30)
+        res = requests.post(worker_url, json={"prompt": prompt, "tone": "casual", "lang": "hk"}, timeout=60)
         print(f"潮流模組 - 雲端 Worker 回應狀態碼: {res.status_code}")
         print(f"潮流模組 - 雲端 Worker 實際內容: {res.text}")
         
@@ -135,8 +128,6 @@ def run_trends_module(worker_url):
     now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     filename = f"trends/trend-{today}.html"
     os.makedirs("trends", exist_ok=True)
-    
-    list_html = "".join([f'<div class="bg-slate-50 p-4 rounded-lg border flex justify-between"><span class="font-bold">{t["keyword"]}</span><span class="text-xs bg-purple-100 text-purple-700 px-2.5 py-1 rounded-full">{t["volume"]}</span></div>' for t in topics])
 
     html_content = f"""<!DOCTYPE html>
 <html lang="zh-HK">
@@ -157,10 +148,6 @@ def run_trends_module(worker_url):
         </div>
     </header>
     <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-6">
-        <div class="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-            <h2 class="text-lg font-bold text-slate-900">📊 今日熱門關鍵字排行榜</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">{list_html}</div>
-        </div>
         <div class="bg-white rounded-xl border border-slate-200 p-8 space-y-4">
             <h2 class="text-xl font-bold text-slate-900 border-b pb-4">💡 迷因與熱話深度解構</h2>
             <div class="prose max-w-none text-slate-700 leading-relaxed whitespace-pre-line">{trends_content}</div>
@@ -224,7 +211,7 @@ def update_index_page():
     print("成功更新主頁 index.html！")
 
 if __name__ == "__main__":
-    worker_url = os.environ.get("AI_WORKER_URL", "https://little-rice-42fa.lcw940708.workers.dev")
+    worker_url = os.environ.get("AI_WORKER_URL") or "https://mainbot.lcw940708.workers.dev"
     run_finance_module(worker_url)
     run_trends_module(worker_url)
     update_index_page()
