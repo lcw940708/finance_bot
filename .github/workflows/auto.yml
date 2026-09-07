@@ -30,7 +30,7 @@ jobs:
         pip install requests
 
     - name: Run Python script
-      run: python finance_bot.py
+      run: python main_bot.py
       env:
         AI_WORKER_URL: ${{ secrets.AI_WORKER_URL }}
 
