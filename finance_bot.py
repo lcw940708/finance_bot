@@ -33,13 +33,9 @@ def fetch_and_analyze_market():
         print(f"抓取數據失敗: {e}")
         return None
 
-# ==========================================
-# 2. 調用 AI Worker 生成「財經專家級」詳盡分析
-# ==========================================
 def generate_expert_commentary(m):
     worker_url = os.environ.get("AI_WORKER_URL", "https://little-rice-42fa.lcw940708.workers.dev")
     
-    # 建立高質素、結構化嘅專業 Prompt
     prompt = f"""
 你是一位資深的加密貨幣市場分析師與風險管理專家。今日市場即時數據如下：
 - 比特幣 (BTC)：{m['btc_price']} (24小時變幅: {m['btc_change']}，現況：{m['btc_trend']})
@@ -58,15 +54,37 @@ def generate_expert_commentary(m):
     }
     
     try:
-        res = requests.post(worker_url, json=payload, timeout=90)
+        # 設定 30 秒 timeout，如果 AI 塞車就會觸發例外
+        res = requests.post(worker_url, json=payload, timeout=30)
         res_json = res.json()
         if res_json.get("success"):
             return res_json.get("content")
         else:
-            return "暫時無法透過 AI 生成深度分析，請參考下方即時客觀數據。"
+            print("AI 回應格式異常，啟動 Fallback 預設分析...")
+            return get_fallback_commentary(m)
+            
     except Exception as e:
-        print(f"AI 生成失敗: {e}")
-        return "AI 伺服器連接超時，請稍後重試。"
+        print(f"AI 請求發生錯誤或超時 ({e})，自動啟動 Fallback 機制...")
+        return get_fallback_commentary(m)
+
+# ==========================================
+# 2.1 Fallback 備用分析內容（當 AI 失敗時自動頂上）
+# ==========================================
+def get_fallback_commentary(m):
+    fallback_text = f"""
+    【系統自動提示：AI 深度分析模組暫時繁忙，以下為基於即時數據的自動化市況摘要】
+
+    1. 【市況解構】：
+    今日比特幣 (BTC) 報價 {m['btc_price']}，24小時變幅為 {m['btc_change']}（市況顯示：{m['btc_trend']}）；以太幣 (ETH) 報價 {m['eth_price']}，24小時變幅為 {m['eth_change']}（市況顯示：{m['eth_trend']}）。整體加密貨幣市場正處於關鍵波動區間，投資者需密切留意主流幣種的支撐與阻力位表現。
+
+    2. 【風險評級】：
+    由於市場瞬息萬變，現階段建議維持【中度觀望】評級。高頻波動期間槓桿交易風險顯著增加，應避免過度追高或盲目殺跌。
+
+    3. 【專家操作建議】：
+    - 短線交易者：宜嚴格設好止損，採取高拋低吸的區間操作策略，切忌戀棧。
+    - 長線投資者：可考慮分段吸納（DCA）策略佈局優質資產，並作好長期持有的心理準備。
+    """
+    return fallback_text.strip()
 
 # ==========================================
 # 3. 生成排版精美且符合 AdSense 結構的 HTML 文章
