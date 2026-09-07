@@ -58,7 +58,7 @@ def generate_expert_commentary(m):
     }
     
     try:
-        res = requests.post(worker_url, json=payload, timeout=20)
+        res = requests.post(worker_url, json=payload, timeout=60)
         res_json = res.json()
         if res_json.get("success"):
             return res_json.get("content")
