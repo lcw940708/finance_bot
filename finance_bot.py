@@ -32,7 +32,8 @@ def fetch_market_data():
 # 2. 調用 AI Worker 重寫成精簡短評
 # ==========================================
 def generate_ai_commentary(market_text):
-    worker_url = os.environ.get("AI_WORKER_URL", "https://little-rice-42fa.lcw940708.workers.dev")
+# 直接寫死，唔依賴環境變數
+worker_url = "https://little-rice-42fa.lcw940708.workers.dev"
     
     prompt = f"以下是今日最新的加密貨幣市場數據：{market_text}。請用廣東話（香港俚語風格）寫一段 50 字左右嘅精簡市場速遞，點評今日市況。"
     
