@@ -31,7 +31,7 @@ def fetch_market_data():
 def generate_ai_commentary(market_text):
     worker_url = os.environ.get("AI_WORKER_URL", "https://little-rice-42fa.lcw940708.workers.dev")
     
-    prompt = f"以下是今日最新的加密貨幣市場數據：{market_text}。請用廣東話（香港俚語風格）寫一段 50 字左右嘅精簡市場速遞，點評今日市況。"
+    prompt = f"以下是今日最新的加密貨幣市場數據：{market_text}。請用廣東話（香港俚語風格）寫一段 500 字左右嘅精簡市場速遞，點評今日市況。"
     
     payload = {
         "prompt": prompt,
