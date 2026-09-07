@@ -1,4 +1,4 @@
-name: Auto Finance Update
+name: Auto Finance and Trends Update
 
 on:
   schedule:
@@ -6,13 +6,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-blog:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    
-    # 明確授權寫入權限，解決 403 錯誤
+
+    # 關鍵：授權 GitHub Actions 可以修改和推送檔案
     permissions:
       contents: write
-      
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -38,5 +38,8 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+        # 將所有產生的目錄與主頁加入版控
         git add posts/ trends/ index.html
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update finance, trends and index [skip ci]" && git push)
+
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update posts, trends and index [skip ci]" && git push)
