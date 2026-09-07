@@ -45,9 +45,13 @@ def run_finance_module(worker_url):
     
     try:
         res = requests.post(worker_url, json={"prompt": prompt, "tone": "professional", "lang": "hk"}, timeout=30)
+        print(f"財經模組 - 雲端 Worker 回應狀態碼: {res.status_code}")
+        print(f"財經模組 - 雲端 Worker 實際內容: {res.text}")
+        
         res_json = res.json()
         expert_content = res_json.get("content") if res_json.get("success") else get_fallback_finance(m)
-    except Exception:
+    except Exception as e:
+        print(f"財經模組 - 詳細錯誤原因: {e}")
         expert_content = get_fallback_finance(m)
 
     today = datetime.now().strftime("%Y-%m-%d")
@@ -118,9 +122,13 @@ def run_trends_module(worker_url):
     
     try:
         res = requests.post(worker_url, json={"prompt": prompt, "tone": "casual", "lang": "hk"}, timeout=30)
+        print(f"潮流模組 - 雲端 Worker 回應狀態碼: {res.status_code}")
+        print(f"潮流模組 - 雲端 Worker 實際內容: {res.text}")
+        
         res_json = res.json()
         trends_content = res_json.get("content") if res_json.get("success") else "今日網絡迷因討論熱烈！"
-    except Exception:
+    except Exception as e:
+        print(f"潮流模組 - 詳細錯誤原因: {e}")
         trends_content = "今日網絡迷因討論熱烈！"
 
     today = datetime.now().strftime("%Y-%m-%d")
