@@ -1,48 +1,44 @@
 name: Auto Finance Update
 
-# 設定幾時自動執行
 on:
   schedule:
-    # 呢度設定為每 4 個鐘執行一次 (Cron 表達式)
     - cron: '0 */4 * * *'
-  # 亦都支援手動喺 GitHub 網頁版禁 "Run workflow" 觸發
   workflow_dispatch:
 
 jobs:
   update-blog:
     runs-on: ubuntu-latest
     
+    # 明確授權寫入權限，解決 403 錯誤
+    permissions:
+      contents: write
+      
     steps:
-    # 1. 拎返你個 GitHub 倉庫嘅程式碼
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
-    # 2. 設定 Python 環境
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
-    # 3. 安裝需要的套件 (requests)
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install requests
 
-    # 4. 執行 Python script 抓數據同生成檔案
     - name: Run Python script
       run: python finance_bot.py
       env:
-        AI_WORKER_URL: ${{ secrets.AI_WORKER_URL }} # 如果你有將 Worker URL 放入 GitHub Secrets
+        AI_WORKER_URL: ${{ secrets.AI_WORKER_URL }}
 
-    # 5. 檢查有無新檔案，有嘅話自動 commit 同 push 返落 GitHub
     - name: Commit and push changes
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
-        # 檢查 posts 目錄有無改動
         git add posts/
         
-        # 如果無新內容改動，git diff 會有唔同，呢度用左防護網：無新野就唔洗 commit
         git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update finance post [skip ci]" && git push)
