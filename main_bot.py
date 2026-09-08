@@ -5,13 +5,6 @@ import random
 import requests
 from datetime import datetime
 
-# 嘗試引入 yt-dlp 用於抓取熱門短片
-try:
-    import yt_dlp
-    HAS_YTDLP = True
-except ImportError:
-    HAS_YTDLP = False
-
 # ==========================================
 # 模組一：環球全景財經數據（指數 + 港股10大 + 美股10大）
 # ==========================================
@@ -374,36 +367,33 @@ def run_horoscope_module(worker_url):
     print(f"成功生成星座 HTML: {filename}")
 
 # ==========================================
-# 模組四：每日熱門短片速遞（透過 yt-dlp 自動抓取熱門 Shorts）
+# 模組四：每日熱門短片速遞
 # ==========================================
 def run_video_module():
     print(">>> 開始執行每日熱門短片模組...")
-    video_id = "dQw4w9WgXcQ"  # 預設備用 ID
-    video_title = "精選熱門短片速遞"
     
-    if HAS_YTDLP:
-        try:
-            ydl_opts = {'extract_flat': True, 'quiet': True}
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                # 搜尋熱門短片
-                info = ydl.extract_info("ytsearch1:香港熱門 Shorts 搞笑", download=False)
-                if 'entries' in info and len(info['entries']) > 0:
-                    entry = info['entries'][0]
-                    video_id = entry.get('id', video_id)
-                    video_title = entry.get('title', video_title)
-        except Exception as e:
-            print(f"yt-dlp 抓取影片失敗: {e}，使用備用短片")
+    viral_shorts = [
+        {"id": "L_LUPnjgPso", "title": "今日搞鬼迷因精選"},
+        {"id": "3JZ_D3ELwOQ", "title": "全城熱話搞笑短片"},
+        {"id": "kJQP7kiw5Fk", "title": "網絡人氣發燒短片"}
+    ]
+    
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    day_index = int(datetime.now().strftime("%d")) % len(viral_shorts)
+    selected_video = viral_shorts[day_index]
+    
+    video_id = selected_video["id"]
+    video_title = selected_video["title"]
 
-    today = datetime.now().strftime("%Y-%m-%d")
     now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    filename = f"videos/video-{today}.html"
+    filename = f"videos/video-{today_str}.html"
     os.makedirs("videos", exist_ok=True)
 
     html_content = f"""<!DOCTYPE html>
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日熱門短片速遞 - {today}</title>
+    <title>每日熱門短片速遞 - {today_str}</title>
     <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
@@ -505,7 +495,7 @@ def update_index_page():
     print("成功更新主頁 index.html！")
 
 if __name__ == "__main__":
-    worker_url = os.environ.get("AI_WORKER_URL") or "https://mainbot.lcw940708.workers.dev"
+    worker_url = os.environ.get("AI_WORKER_URL") or "[https://mainbot.lcw940708.workers.dev](https://mainbot.lcw940708.workers.dev)"
     run_finance_module(worker_url)
     run_trends_module(worker_url)
     run_horoscope_module(worker_url)
