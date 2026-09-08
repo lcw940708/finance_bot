@@ -410,9 +410,9 @@ def run_video_module():
     <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-6">
         <div class="bg-white rounded-xl border border-slate-200 p-8 shadow-xs space-y-4 text-center">
             <h2 class="text-xl font-bold text-slate-900">{video_title}</h2>
-            <div class="relative w-full aspect-[9/16] max-w-sm mx-auto bg-black rounded-xl overflow-hidden shadow-lg">
-<iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/{video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
+<div class="relative w-full aspect-[9/16] max-w-md mx-auto bg-black rounded-xl overflow-hidden shadow-lg">
+    <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/{video_id}" frameborder="0" allowfullscreen></iframe>
+</div>
         </div>
     </main>
     <footer class="border-t py-6 text-center text-xs text-slate-400 bg-white">© 2026 短片速遞專欄</footer>
@@ -495,7 +495,7 @@ def update_index_page():
     print("成功更新主頁 index.html！")
 
 if __name__ == "__main__":
-    worker_url = os.environ.get("AI_WORKER_URL") or "[https://mainbot.lcw940708.workers.dev](https://mainbot.lcw940708.workers.dev)"
+    worker_url = os.environ.get("AI_WORKER_URL") or "https://mainbot.lcw940708.workers.dev"
     run_finance_module(worker_url)
     run_trends_module(worker_url)
     run_horoscope_module(worker_url)
