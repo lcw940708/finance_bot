@@ -2,8 +2,8 @@ name: Run AI Bot Daily
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每日定時執行（或按你需求）
-  workflow_dispatch: # 允許手動觸發
+    - cron: '0 0 0 * *' # 每日定時執行（可按需求調整時間）
+  workflow_dispatch: # 允許手動隨時觸發
 
 jobs:
   run-bot:
@@ -17,8 +17,8 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: 3. 安裝依賴套件
-        run: pip install requests
+      - name: 3. 安裝依賴套件 (requests & yt-dlp)
+        run: pip install requests yt-dlp
 
       - name: 4. 執行 Bot 程式
         env:
@@ -29,6 +29,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add horoscope/ posts/ trends/ index.html
-          git commit -m "Auto-update AI content for today" || exit 0
+          git add posts/ trends/ horoscope/ videos/ index.html
+          git commit -m "Auto-update AI daily content (Finance, Trends, Horoscope, Videos)" || exit 0
           git push
