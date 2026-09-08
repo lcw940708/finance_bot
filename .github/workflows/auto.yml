@@ -2,7 +2,7 @@ name: Run AI Bot Daily
 
 on:
   schedule:
-    - cron: '0 0 0 * *' # 每日定時執行（可按需求調整時間）
+    - cron: '0 0 * * *' # 每日定時執行（可按需求調整時間）
   workflow_dispatch: # 允許手動隨時觸發
 
 jobs:
