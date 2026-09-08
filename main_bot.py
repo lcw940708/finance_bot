@@ -411,7 +411,7 @@ def run_video_module():
         <div class="bg-white rounded-xl border border-slate-200 p-8 shadow-xs space-y-4 text-center">
             <h2 class="text-xl font-bold text-slate-900">{video_title}</h2>
             <div class="relative w-full aspect-[9/16] max-w-sm mx-auto bg-black rounded-xl overflow-hidden shadow-lg">
-                <iframe class="w-full h-full absolute inset-0" src="[https://www.youtube.com/embed/](https://www.youtube.com/embed/){video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/{video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
     </main>
