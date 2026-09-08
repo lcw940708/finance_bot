@@ -5,6 +5,13 @@ import random
 import requests
 from datetime import datetime
 
+# 嘗試引入 yt-dlp 用於抓取熱門短片
+try:
+    import yt_dlp
+    HAS_YTDLP = True
+except ImportError:
+    HAS_YTDLP = False
+
 # ==========================================
 # 模組一：環球全景財經數據（指數 + 港股10大 + 美股10大）
 # ==========================================
@@ -230,14 +237,11 @@ def run_trends_module(worker_url):
     print(f"成功生成潮流 HTML: {filename}")
 
 # ==========================================
-# 模組三：每日星座運程（以當日日期鎖死榜首與亂序，同日之內不變）
+# 模組三：每日星座運程（以當日日期鎖死榜首與亂序）
 # ==========================================
 def run_horoscope_module(worker_url):
     print(">>> 開始執行每日星座運程模組...")
     today = datetime.now().strftime("%Y-%m-%d")
-    
-    # 關鍵：以「今日日期」做亂數種子 (Seed)
-    # 這樣代表喺同理一日之內無論 run 幾多次，選出黎嘅榜首同次序都完全一樣；聽日就會自動轉新榜首！
     random.seed(today)
 
     prompt = """
@@ -291,7 +295,7 @@ def run_horoscope_module(worker_url):
         horoscopes = sorted(horoscopes, key=lambda x: x.get('score', 0), reverse=True)
         top_one = horoscopes[0]
         rest_horoscopes = horoscopes[1:]
-        random.shuffle(rest_horoscopes) # 用今日日期 seed 進行固定亂排
+        random.shuffle(rest_horoscopes)
     else:
         top_one = {}
         rest_horoscopes = []
@@ -370,6 +374,65 @@ def run_horoscope_module(worker_url):
     print(f"成功生成星座 HTML: {filename}")
 
 # ==========================================
+# 模組四：每日熱門短片速遞（透過 yt-dlp 自動抓取熱門 Shorts）
+# ==========================================
+def run_video_module():
+    print(">>> 開始執行每日熱門短片模組...")
+    video_id = "dQw4w9WgXcQ"  # 預設備用 ID
+    video_title = "精選熱門短片速遞"
+    
+    if HAS_YTDLP:
+        try:
+            ydl_opts = {'extract_flat': True, 'quiet': True}
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                # 搜尋熱門短片
+                info = ydl.extract_info("ytsearch1:香港熱門 Shorts 搞笑", download=False)
+                if 'entries' in info and len(info['entries']) > 0:
+                    entry = info['entries'][0]
+                    video_id = entry.get('id', video_id)
+                    video_title = entry.get('title', video_title)
+        except Exception as e:
+            print(f"yt-dlp 抓取影片失敗: {e}，使用備用短片")
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    filename = f"videos/video-{today}.html"
+    os.makedirs("videos", exist_ok=True)
+
+    html_content = f"""<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日熱門短片速遞 - {today}</title>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+    <header class="bg-white border-b border-slate-200 py-6">
+        <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
+            <div>
+                <span class="text-xs font-semibold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full">短片速遞專欄</span>
+                <h1 class="text-2xl font-bold text-slate-900 mt-1">🎬 每日熱門短片速遞</h1>
+                <p class="text-xs text-slate-500 mt-1">發布時間：{now_time}</p>
+            </div>
+            <a href="../index.html" class="text-sm text-blue-600 hover:underline">← 返回主頁</a>
+        </div>
+    </header>
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-6">
+        <div class="bg-white rounded-xl border border-slate-200 p-8 shadow-xs space-y-4 text-center">
+            <h2 class="text-xl font-bold text-slate-900">{video_title}</h2>
+            <div class="relative w-full aspect-[9/16] max-w-sm mx-auto bg-black rounded-xl overflow-hidden shadow-lg">
+                <iframe class="w-full h-full absolute inset-0" src="[https://www.youtube.com/embed/](https://www.youtube.com/embed/){video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </main>
+    <footer class="border-t py-6 text-center text-xs text-slate-400 bg-white">© 2026 短片速遞專欄</footer>
+</body>
+</html>"""
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(html_content)
+    print(f"成功生成短片 HTML: {filename}")
+
+# ==========================================
 # 總控：統一更新主頁 index.html
 # ==========================================
 def update_index_page():
@@ -391,22 +454,29 @@ def update_index_page():
             if file.endswith(".html"):
                 horoscope_posts.append((file.replace("horoscope-", "").replace(".html", ""), f"horoscope/{file}"))
 
+    video_posts = []
+    if os.path.exists("videos"):
+        for file in sorted(os.listdir("videos"), reverse=True):
+            if file.endswith(".html"):
+                video_posts.append((file.replace("video-", "").replace(".html", ""), f"videos/{file}"))
+
     finance_html = "".join([f'<a href="{p}" class="block p-4 rounded-xl border hover:border-blue-500 bg-white transition"><span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">財經專欄</span><h3 class="font-bold mt-1">環球全景與 20 大巨頭日報 ({d})</h3></a>' for d, p in finance_posts])
     trends_html = "".join([f'<a href="{p}" class="block p-4 rounded-xl border hover:border-purple-500 bg-white transition"><span class="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded">潮流迷因</span><h3 class="font-bold mt-1">10大潮流熱搜與迷因解構 ({d})</h3></a>' for d, p in trends_posts])
     horoscope_html = "".join([f'<a href="{p}" class="block p-4 rounded-xl border hover:border-amber-500 bg-white transition"><span class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded">星座運程</span><h3 class="font-bold mt-1">每日 12 星座運程速遞 ({d})</h3></a>' for d, p in horoscope_posts])
+    video_html = "".join([f'<a href="{p}" class="block p-4 rounded-xl border hover:border-rose-500 bg-white transition"><span class="text-xs text-rose-600 bg-rose-50 px-2 py-0.5 rounded">短片速遞</span><h3 class="font-bold mt-1">每日熱門短片速遞 ({d})</h3></a>' for d, p in video_posts])
 
     index_content = f"""<!DOCTYPE html>
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自動化內容平台 - 財經、潮流與星座速遞</title>
+    <title>自動化內容平台 - 財經、潮流、星座與短片速遞</title>
     <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
     <header class="bg-white border-b py-8 shadow-xs">
         <div class="max-w-4xl mx-auto px-4">
-            <h1 class="text-3xl font-extrabold text-slate-900">📈 每日環球財經、潮流與星座速遞</h1>
-            <p class="text-slate-500 mt-2">由 AI 驅動的自動化多元內容聚合平台</p>
+            <h1 class="text-3xl font-extrabold text-slate-900">📈 每日環球財經、潮流、星座與短片速遞</h1>
+            <p class="text-slate-500 mt-2">由 AI 與自動化腳本驅動的多元內容聚合平台</p>
         </div>
     </header>
     <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-8">
@@ -422,6 +492,10 @@ def update_index_page():
             <h2 class="text-lg font-bold mb-4 text-amber-600">✨ 最新星座運程</h2>
             <div class="space-y-3">{horoscope_html}</div>
         </div>
+        <div class="bg-white rounded-xl border p-6">
+            <h2 class="text-lg font-bold mb-4 text-rose-600">🎬 最新熱門短片</h2>
+            <div class="space-y-3">{video_html}</div>
+        </div>
     </main>
     <footer class="border-t py-6 text-center text-xs text-slate-400 bg-white">© 2026 自動化內容平台</footer>
 </body>
@@ -431,8 +505,9 @@ def update_index_page():
     print("成功更新主頁 index.html！")
 
 if __name__ == "__main__":
-    worker_url = os.environ.get("AI_WORKER_URL") or "[https://mainbot.lcw940708.workers.dev](https://mainbot.lcw940708.workers.dev)"
+    worker_url = os.environ.get("AI_WORKER_URL") or "https://mainbot.lcw940708.workers.dev"
     run_finance_module(worker_url)
     run_trends_module(worker_url)
     run_horoscope_module(worker_url)
+    run_video_module()
     update_index_page()
