@@ -46,7 +46,6 @@ def run_finance_module(worker_url):
     try:
         res = requests.post(worker_url, json={"prompt": prompt, "tone": "professional", "lang": "hk"}, timeout=60)
         print(f"財經模組 - 雲端 Worker 回應狀態碼: {res.status_code}")
-        print(f"財經模組 - 雲端 Worker 實際內容: {res.text}")
         
         res_json = res.json()
         expert_content = res_json.get("content") if res_json.get("success") else get_fallback_finance(m)
@@ -106,17 +105,17 @@ def get_fallback_finance(m):
     return f"【系統提示：AI 模組繁忙】今日 BTC 報價 {m['btc_price']} ({m['btc_change']})，ETH 報價 {m['eth_price']} ({m['eth_change']})。建議保持中度觀望，嚴控風險。"
 
 # ==========================================
-# 模組二：潮流熱搜與迷因解構生成
+# 模組二：潮流熱搜與迷因解構生成 (鎖定 10 個熱話)
 # ==========================================
 def run_trends_module(worker_url):
     print(">>> 開始執行潮流熱搜模組...")
     
-    prompt = "請幫我搜尋今日香港最新熱話關鍵字，並用貼地、幽默的廣東話撰寫一份迷因解構報告（包含【熱話解構】與【迷因文化觀點】）。"
+    # 明確要求生成 10 個熱門搜尋與解構
+    prompt = "請為今日香港網民生成剛好 10 個不同範疇的熱門搜尋話題（涵蓋城中熱話、生活、科技、迷因等），並逐一用貼地、幽默的廣東話進行迷因解構報告。"
     
     try:
         res = requests.post(worker_url, json={"prompt": prompt, "tone": "casual", "lang": "hk"}, timeout=60)
         print(f"潮流模組 - 雲端 Worker 回應狀態碼: {res.status_code}")
-        print(f"潮流模組 - 雲端 Worker 實際內容: {res.text}")
         
         res_json = res.json()
         trends_content = res_json.get("content") if res_json.get("success") else "今日網絡迷因討論熱烈！"
@@ -141,7 +140,7 @@ def run_trends_module(worker_url):
         <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
             <div>
                 <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">潮流與迷因專欄</span>
-                <h1 class="text-2xl font-bold text-slate-900 mt-1">🔥 潮流熱搜與迷因關鍵字</h1>
+                <h1 class="text-2xl font-bold text-slate-900 mt-1">🔥 今日 10 大潮流熱搜與迷因解構</h1>
                 <p class="text-xs text-slate-500 mt-1">發布時間：{now_time}</p>
             </div>
             <a href="../index.html" class="text-sm text-blue-600 hover:underline font-medium">← 返回主頁</a>
@@ -149,7 +148,7 @@ def run_trends_module(worker_url):
     </header>
     <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-6">
         <div class="bg-white rounded-xl border border-slate-200 p-8 space-y-4">
-            <h2 class="text-xl font-bold text-slate-900 border-b pb-4">💡 迷因與熱話深度解構</h2>
+            <h2 class="text-xl font-bold text-slate-900 border-b pb-4">💡 10 大熱話與迷因深度解構</h2>
             <div class="prose max-w-none text-slate-700 leading-relaxed whitespace-pre-line">{trends_content}</div>
         </div>
     </main>
@@ -177,7 +176,7 @@ def update_index_page():
                 trends_posts.append((file.replace("trend-", "").replace(".html", ""), f"trends/{file}"))
 
     finance_html = "".join([f'<a href="{p}" class="block p-4 rounded-xl border hover:border-blue-500 bg-white transition"><span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">財經專欄</span><h3 class="font-bold mt-1">加密貨幣市場日報 ({d})</h3></a>' for d, p in finance_posts])
-    trends_html = "".join([f'<a href="{p}" class="block p-4 rounded-xl border hover:border-purple-500 bg-white transition"><span class="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded">潮流迷因</span><h3 class="font-bold mt-1">潮流熱搜與迷因解構 ({d})</h3></a>' for d, p in trends_posts])
+    trends_html = "".join([f'<a href="{p}" class="block p-4 rounded-xl border hover:border-purple-500 bg-white transition"><span class="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded">潮流迷因</span><h3 class="font-bold mt-1">10大潮流熱搜與迷因解構 ({d})</h3></a>' for d, p in trends_posts])
 
     index_content = f"""<!DOCTYPE html>
 <html lang="zh-HK">
