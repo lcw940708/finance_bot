@@ -230,10 +230,16 @@ def run_trends_module(worker_url):
     print(f"成功生成潮流 HTML: {filename}")
 
 # ==========================================
-# 模組三：每日星座運程（榜首展示分數，其餘隨機亂排不顯示分數）
+# 模組三：每日星座運程（以當日日期鎖死榜首與亂序，同日之內不變）
 # ==========================================
 def run_horoscope_module(worker_url):
     print(">>> 開始執行每日星座運程模組...")
+    today = datetime.now().strftime("%Y-%m-%d")
+    
+    # 關鍵：以「今日日期」做亂數種子 (Seed)
+    # 這樣代表喺同理一日之內無論 run 幾多次，選出黎嘅榜首同次序都完全一樣；聽日就會自動轉新榜首！
+    random.seed(today)
+
     prompt = """
 請為 12 個星座（白羊座、金牛座、雙子座、巨蟹座、獅子座、處女座、天秤座、天蠍座、射手座、摩羯座、水瓶座、雙魚座）編寫今日詳細運程。
 必須嚴格以 JSON 格式回傳一個 Array，不要包含任何 markdown 程式碼標記（如 ```json），格式如下：
@@ -281,17 +287,15 @@ def run_horoscope_module(worker_url):
                 "tip": "開運顏色：藍色 | 幸運數字：7"
             })
 
-    # 找出最高分作為榜首，其餘隨機亂排
     if horoscopes:
         horoscopes = sorted(horoscopes, key=lambda x: x.get('score', 0), reverse=True)
         top_one = horoscopes[0]
         rest_horoscopes = horoscopes[1:]
-        random.shuffle(rest_horoscopes) # 亂排其餘星座
+        random.shuffle(rest_horoscopes) # 用今日日期 seed 進行固定亂排
     else:
         top_one = {}
         rest_horoscopes = []
 
-    today = datetime.now().strftime("%Y-%m-%d")
     now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     filename = f"horoscope/horoscope-{today}.html"
     os.makedirs("horoscope", exist_ok=True)
@@ -313,7 +317,6 @@ def run_horoscope_module(worker_url):
     </div>
     """
 
-    # 渲染其餘 11 個星座（不設分數、不設排名次序）
     cards_html = ""
     for item in rest_horoscopes:
         cards_html += f"""
@@ -428,7 +431,7 @@ def update_index_page():
     print("成功更新主頁 index.html！")
 
 if __name__ == "__main__":
-    worker_url = os.environ.get("AI_WORKER_URL") or "https://mainbot.lcw940708.workers.dev"
+    worker_url = os.environ.get("AI_WORKER_URL") or "[https://mainbot.lcw940708.workers.dev](https://mainbot.lcw940708.workers.dev)"
     run_finance_module(worker_url)
     run_trends_module(worker_url)
     run_horoscope_module(worker_url)
