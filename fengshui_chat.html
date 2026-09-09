@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Richard AI 實時抓取批算系統</title>
+    <title>Richard AI 實時天象批算系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
@@ -12,8 +12,8 @@
         <div class="max-w-3xl mx-auto px-4 flex justify-between items-center">
             <div>
                 <a href="index.html" class="text-xs text-rose-400 hover:underline mb-1 inline-block">&larr; 返回主頁</a>
-                <h1 class="text-2xl font-bold text-rose-400 mt-1">🌐 Richard AI 實時抓取運程批算</h1>
-                <p class="text-xs text-slate-400 mt-1">結合動態抓取數據與大師級香港廣東話剖析。</p>
+                <h1 class="text-2xl font-bold text-rose-400 mt-1">🌐 Richard AI 實時天象運程批算</h1>
+                <p class="text-xs text-slate-400 mt-1">結合香港實時日照天象與Richard級香港廣東話剖析。</p>
             </div>
             <div id="live-clock" class="text-right text-xs font-mono text-rose-300 bg-slate-900 px-3 py-2 rounded-lg border border-rose-900/40">
                 載入中...
@@ -34,7 +34,7 @@
                 </div>
             </div>
             <div>
-                <button onclick="getFortune()" id="send-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition shadow-md">請 Richard AI 結合抓取數據批算</button>
+                <button onclick="getFortune()" id="send-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition shadow-md">請 Richard AI 結合實時天象批算</button>
             </div>
         </div>
 
@@ -42,7 +42,7 @@
             <div class="flex items-start space-x-3">
                 <div class="bg-rose-600 text-white text-xs px-2.5 py-1 rounded-full font-bold">Richard AI</div>
                 <div class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 max-w-[80%]">
-                    「老實講，後台已經幫你自動抓取咗最新嘅網上運程同凶星數據。填好你個名同生日，本大師即刻同你拆解！」
+                    「老實講，後台已經透過香港實時天象座標捕捉咗今日嘅日照與陽氣轉折點。填好你個名同生日，本Richard即刻同你拆解！」
                 </div>
             </div>
         </div>
@@ -64,7 +64,7 @@
         function getZodiacSign(month, day) {
             if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return "水瓶座";
             if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return "雙魚座";
-            if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return "白羊座";
+            if ((month == 3 && day >= 21) || (month == 4 && day >= 19)) return "白羊座";
             if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return "金牛座";
             if ((month == 5 && day >= 21) || (month == 6 && day <= 21)) return "雙子座";
             if ((month == 6 && day >= 22) || (month == 7 && day <= 22)) return "巨蟹座";
@@ -106,7 +106,7 @@
 
             chatContainer.innerHTML += `
                 <div class="flex items-start justify-end space-x-3">
-                    <div class="bg-slate-700 text-slate-100 rounded-lg p-3 text-sm max-w-[80%]"><b>[${escapeHtml(userName)} | 生日: ${escapeHtml(userDob)} | 星座: ${exactZodiac}]</b> 請 Richard AI 大師批算</div>
+                    <div class="bg-slate-700 text-slate-100 rounded-lg p-3 text-sm max-w-[80%]"><b>[${escapeHtml(userName)} | 生日: ${escapeHtml(userDob)} | 星座: ${exactZodiac}]</b> 請 Richard AI Richard批算</div>
                     <div class="bg-rose-600 text-white text-xs px-2.5 py-1 rounded-full font-bold">你</div>
                 </div>
             `;
@@ -114,14 +114,14 @@
             nameField.disabled = true;
             dobField.disabled = true;
             sendBtn.disabled = true;
-            sendBtn.innerText = '大師正結合抓取數據分析中...';
+            sendBtn.innerText = 'Richard正結合實時天象分析中...';
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
             const loadingId = 'loading-' + Date.now();
             chatContainer.innerHTML += `
                 <div id="${loadingId}" class="flex items-start space-x-3">
                     <div class="bg-rose-600 text-white text-xs px-2.5 py-1 rounded-full font-bold">Richard AI</div>
-                    <div class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-400 italic">正在剖析最新網絡抓取數據，為「${escapeHtml(userName)}」（${exactZodiac}）進行深度批算...</div>
+                    <div class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-400 italic">正在剖析今日實時天象數據，為「${escapeHtml(userName)}」（${exactZodiac}）進行深度批算...</div>
                 </div>
             `;
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -136,7 +136,7 @@
                         zodiac: exactZodiac, 
                         scrapedData: scrapedData,
                         requestTime: currentDateTimeStr,
-                        prompt: "請結合網絡抓取數據與精確星座，嚴厲指出今日要小心咩陷阱、最旺數字同開運花卉。" 
+                        prompt: "請結合實時天象數據與精確星座，嚴厲指出今日要小心咩陷阱、最旺數字同開運花卉。" 
                     })
                 });
 
@@ -163,7 +163,7 @@
             nameField.disabled = false;
             dobField.disabled = false;
             sendBtn.disabled = false;
-            sendBtn.innerText = '請 Richard AI 結合抓取數據批算';
+            sendBtn.innerText = '請 Richard AI 結合實時天象批算';
             nameField.focus();
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
