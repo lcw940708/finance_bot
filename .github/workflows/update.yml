@@ -1,0 +1,32 @@
+name: Run Main Python Script
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 每日 UTC 時間 00:00 (香港時間早上 8 點) 自動執行一次
+  workflow_dispatch: # 支援手動觸發
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run main.py
+        run: python main.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html fengshui_chat.html data/fengshui.json
+          git commit -m "Auto-update site and fengshui data via GitHub Actions" || echo "No changes to commit"
+          git push
