@@ -394,7 +394,7 @@ def run_video_module():
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>每日熱門短片速遞 - {today_str}</title>
-<script src="https://cdn.tailwindcss.com"></script>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
     <header class="bg-white border-b border-slate-200 py-6">
@@ -410,9 +410,9 @@ def run_video_module():
     <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-6">
         <div class="bg-white rounded-xl border border-slate-200 p-8 shadow-xs space-y-4 text-center">
             <h2 class="text-xl font-bold text-slate-900">{video_title}</h2>
-<div class="w-full max-w-3xl mx-auto bg-black rounded-xl overflow-hidden shadow-lg">
-    <iframe class="w-full h-[400px]" src="https://www.youtube.com/embed/{video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
+            <div class="w-full max-w-3xl mx-auto bg-black rounded-xl overflow-hidden shadow-lg">
+                <iframe class="w-full h-[400px]" src="[https://www.youtube.com/embed/](https://www.youtube.com/embed/){video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
         </div>
     </main>
     <footer class="border-t py-6 text-center text-xs text-slate-400 bg-white">© 2026 短片速遞專欄</footer>
@@ -464,12 +464,28 @@ def update_index_page():
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
     <header class="bg-white border-b py-8 shadow-xs">
-        <div class="max-w-4xl mx-auto px-4">
-            <h1 class="text-3xl font-extrabold text-slate-900">📈 每日環球財經、潮流、星座與短片速遞</h1>
-            <p class="text-slate-500 mt-2">由 AI 與自動化腳本驅動的多元內容聚合平台</p>
+        <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900">📈 每日環球財經、潮流、星座與短片速遞</h1>
+                <p class="text-slate-500 mt-2">由 AI 與自動化腳本驅動的多元內容聚合平台</p>
+            </div>
+            <!-- 主頁右上角加入風水問答入口 -->
+            <a href="fengshui_chat.html" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-1.5">
+                🔮 AI 風水問答
+            </a>
         </div>
     </header>
     <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-8">
+        <!-- 實時互動專欄 (風水問答入口) -->
+        <div class="bg-white rounded-xl border p-6">
+            <h2 class="text-lg font-bold mb-4 text-amber-600">🔮 實時互動專欄</h2>
+            <div class="space-y-3">
+                <a href="fengshui_chat.html" class="block p-4 rounded-xl border hover:border-amber-500 bg-white transition">
+                    <span class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded">互動問答</span>
+                    <h3 class="font-bold mt-1">AI 智能風水師即時問答系統</h3>
+                </a>
+            </div>
+        </div>
         <div class="bg-white rounded-xl border p-6">
             <h2 class="text-lg font-bold mb-4 text-blue-600">📈 最新財經報告</h2>
             <div class="space-y-3">{finance_html}</div>
@@ -492,10 +508,10 @@ def update_index_page():
 </html>"""
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(index_content)
-    print("成功更新主頁 index.html！")
+    print("成功更新主頁 index.html（包含風水捷徑與專欄）！")
 
 if __name__ == "__main__":
-    worker_url = os.environ.get("AI_WORKER_URL") or "https://mainbot.lcw940708.workers.dev"
+    worker_url = os.environ.get("AI_WORKER_URL") or "[https://mainbot.lcw940708.workers.dev](https://mainbot.lcw940708.workers.dev)"
     run_finance_module(worker_url)
     run_trends_module(worker_url)
     run_horoscope_module(worker_url)
