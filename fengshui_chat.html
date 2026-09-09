@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 智能風水師問答</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- 頂部標題 -->
+    <header class="bg-white border-b border-slate-200 py-6">
+        <div class="max-w-3xl mx-auto px-4">
+            <span class="text-xs font-semibold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">實時互動專欄</span>
+            <h1 class="text-2xl font-bold text-slate-900 mt-1">🔮 AI 智能風水師問答</h1>
+            <p class="text-xs text-slate-500 mt-1">結合每隔幾鐘更新嘅最新通勝與風水數據，隨時為你指點迷津。</p>
+        </div>
+    </header>
+
+    <!-- 對話區域 -->
+    <main class="max-w-3xl mx-auto px-4 py-6 flex-grow w-full space-y-4">
+        <div id="chat-container" class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4 min-h-[350px] max-h-[500px] overflow-y-auto">
+            <!-- 預設歡迎對話 -->
+            <div class="flex items-start space-x-3">
+                <div class="bg-amber-600 text-white text-xs px-2.5 py-1 rounded-full font-bold">AI</div>
+                <div class="bg-slate-100 rounded-lg p-3 text-sm text-slate-700 max-w-[80%]">
+                    你好！今日嘅風水數據已經由系統自動更新。請問你想問今日嘅財神位、吉時，定係其他運勢問題呢？
+                </div>
+            </div>
+        </div>
+
+        <!-- 提問輸入框 -->
+        <div class="flex gap-2">
+            <input type="text" id="user-input" placeholder="例如：今日去邊個方位最好？..." class="flex-grow border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500">
+            <button onclick="sendQuestion()" id="send-btn" class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">發送</button>
+        </div>
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="border-t py-4 text-center text-xs text-slate-400 bg-white">
+        © 2026 AI 風水問答系統
+    </footer>
+
+    <!-- JavaScript 互動邏輯 -->
+    <script>
+        async function sendQuestion() {
+            const inputField = document.getElementById('user-input');
+            const chatContainer = document.getElementById('chat-container');
+            const sendBtn = document.getElementById('send-btn');
+            
+            const question = inputField.value.trim();
+            if (!question) return;
+
+            // 1. 顯示用戶嘅問題
+            chatContainer.innerHTML += `
+                <div class="flex items-start justify-end space-x-3">
+                    <div class="bg-amber-50 text-slate-800 rounded-lg p-3 text-sm max-w-[80%]">${escapeHtml(question)}</div>
+                    <div class="bg-slate-800 text-white text-xs px-2.5 py-1 rounded-full font-bold">你</div>
+                </div>
+            `;
+            
+            inputField.value = '';
+            inputField.disabled = true;
+            sendBtn.disabled = true;
+            sendBtn.innerText = '計算緊...';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // 2. 顯示 AI 正在思考中...
+            const loadingId = 'loading-' + Date.now();
+            chatContainer.innerHTML += `
+                <div id="${loadingId}" class="flex items-start space-x-3">
+                    <div class="bg-amber-600 text-white text-xs px-2.5 py-1 rounded-full font-bold">AI</div>
+                    <div class="bg-slate-100 rounded-lg p-3 text-sm text-slate-500 italic">正在翻查最新通勝與風水數據...</div>
+                </div>
+            `;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                // 3. 呼叫你嘅 Cloudflare Worker API
+                // 記得將下面個 URL 換成你真實嘅 Worker 網址
+                const response = await fetch('https://mainbot.lcw940708.workers.dev', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: question })
+                });
+
+                const data = await response.json();
+                
+                // 移除載入中提示
+                document.getElementById(loadingId).remove();
+
+                // 4. 顯示 AI 嘅真正回答
+                chatContainer.innerHTML += `
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-amber-600 text-white text-xs px-2.5 py-1 rounded-full font-bold">AI</div>
+                        <div class="bg-slate-100 rounded-lg p-3 text-sm text-slate-700 max-w-[80%]">${escapeHtml(data.result || '暫時無法取得回覆，請稍後再試。')}</div>
+                    </div>
+                `;
+
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                chatContainer.innerHTML += `
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-rose-600 text-white text-xs px-2.5 py-1 rounded-full font-bold">系統</div>
+                        <div class="bg-rose-50 text-rose-700 rounded-lg p-3 text-sm max-w-[80%]">連線發生錯誤，請檢查網絡或 Worker 設定。</div>
+                    </div>
+                `;
+            }
+
+            // 恢復輸入框
+            inputField.disabled = false;
+            sendBtn.disabled = false;
+            sendBtn.innerText = '發送';
+            inputField.focus();
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // 簡單嘅防 XSS 轉義函數
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // 支援禁 Enter 鍵直接發送
+        document.getElementById('user-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendQuestion();
+            }
+        });
+    </script>
+</body>
+</html>
