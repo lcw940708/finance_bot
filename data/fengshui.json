@@ -1,19 +1,19 @@
 {
     "status": "scraped_and_ready",
-    "updated": "2026-09-11 23:40:45",
+    "updated": "2026-09-12 02:05:24",
     "data": {
         "source_status": "success",
         "celestial_data": {
-            "sunrise": "2026-09-10T22:07:47+00:00",
-            "sunset": "2026-09-11T10:32:19+00:00",
-            "solar_noon": "2026-09-11T04:20:03+00:00",
-            "day_length": 44672,
-            "civil_twilight_begin": "2026-09-10T21:46:27+00:00",
-            "civil_twilight_end": "2026-09-11T10:53:39+00:00",
-            "nautical_twilight_begin": "2026-09-10T21:20:12+00:00",
-            "nautical_twilight_end": "2026-09-11T11:19:54+00:00",
-            "astronomical_twilight_begin": "2026-09-10T20:53:43+00:00",
-            "astronomical_twilight_end": "2026-09-11T11:46:23+00:00"
+            "sunrise": "2026-09-11T22:08:04+00:00",
+            "sunset": "2026-09-12T10:31:20+00:00",
+            "solar_noon": "2026-09-12T04:19:42+00:00",
+            "day_length": 44596,
+            "civil_twilight_begin": "2026-09-11T21:46:45+00:00",
+            "civil_twilight_end": "2026-09-12T10:52:39+00:00",
+            "nautical_twilight_begin": "2026-09-11T21:20:31+00:00",
+            "nautical_twilight_end": "2026-09-12T11:18:52+00:00",
+            "astronomical_twilight_begin": "2026-09-11T20:54:05+00:00",
+            "astronomical_twilight_end": "2026-09-12T11:45:19+00:00"
         }
     }
 }
